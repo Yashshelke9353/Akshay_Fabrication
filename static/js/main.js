@@ -71,4 +71,14 @@ function applyAppLang() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', applyAppLang);
+document.addEventListener('DOMContentLoaded', () => {
+  applyAppLang();
+
+  // Close mobile nav menu after clicking a link
+  const navEl = document.getElementById('navLinks');
+  if (navEl) {
+    navEl.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => navEl.classList.remove('open'));
+    });
+  }
+});

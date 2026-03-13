@@ -41,8 +41,10 @@ body { background:var(--dark); color:var(--text); font-family:'Tiro Devanagari M
 @media(max-width:768px) {
   .navbar { padding:0 20px; }
   .hamburger { display:block; }
-  .nav-links { display:none; position:fixed; top:70px; left:0; right:0; background:var(--secondary); flex-direction:column; padding:20px; border-bottom:1px solid var(--card-border); }
+  .nav-links { display:none; position:fixed; top:70px; left:0; right:0; background:var(--secondary); flex-direction:column; padding:20px; border-bottom:1px solid var(--card-border); max-height:calc(100vh - 70px); overflow-y:auto; }
   .nav-links.open { display:flex; }
+  .nav-links li { width:100%; }
+  .nav-links a { display:block; width:100%; padding:12px 16px; }
 }
 
 /* HERO */
