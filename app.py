@@ -737,7 +737,6 @@ def seed_db():
                 db.session.add(wm)
         db.session.commit()
 
-
 def ensure_column(table_name, column_name, column_def):
     """Ensure a column exists in the given table; if missing, ALTER TABLE to add it."""
     from sqlalchemy import inspect, text
@@ -747,10 +746,13 @@ def ensure_column(table_name, column_name, column_def):
             conn.execute(text(f'ALTER TABLE {table_name} ADD COLUMN {column_name} {column_def}'))
             conn.commit()
 
+# Initialize database on startup
+with app.app_context():
+    db.create_all()
+    # For existing installations: ensure new schema columns exist
+    ensure_column('bills', 'work_id', 'INTEGER')
+    seed_db()
+
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        # For existing installations: ensure new schema columns exist
-        ensure_column('bills', 'work_id', 'INTEGER')
-        seed_db()
     app.run(debug=True, host='0.0.0.0', port=5000)
