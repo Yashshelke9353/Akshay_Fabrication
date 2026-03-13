@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>प्रशासक पॅनेल - {{ settings.shop_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Marathi&family=Rajdhani:wght@400;600;700&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="{{ settings.shop_name }} logo" style="width:90px;height:90px;object-fit:contain;margin-bottom:15px;">
+    <h2 class="login-title">प्रशासक लॉगिन</h2>
+    <p style="color:var(--text-muted);margin-bottom:30px;">{{ settings.shop_name }}</p>
+    <div id="loginMsg"></div>
+    <div class="form-group">
+      <input type="password" id="loginPwd" placeholder="Password टाका" style="text-align:center;font-size:18px;" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-primary" style="width:100%;" onclick="doLogin()">🔓 Login करा</button>
+    <p style="margin-top:15px;color:var(--text-muted);font-size:13px;">Default: <strong style="color:var(--accent);">akshay123</strong></p>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel" style="display:none;">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="{{ settings.shop_name }} logo" style="width:40px;height:40px;object-fit:contain;border-radius:10px;">
+      <div><div class="brand-name">प्रशासक पॅनेल</div><div class="brand-sub">{{ settings.shop_name }}</div></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <a href="{{ url_for('index') }}" style="color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:14px;">🌐 Website</a>
+      <button class="btn-secondary" onclick="doLogout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div style="display:flex;min-height:calc(100vh - 65px);">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <nav class="side-nav">
+        <button class="side-btn active" onclick="showSection('dashboard',this)">📊 डॅशबोर्ड</button>
+        <button class="side-btn" onclick="showSection('billing',this)">🧾 बिल तयार करा</button>
+        <button class="side-btn" onclick="showSection('bills',this)">📋 सर्व बिले</button>
+        <button class="side-btn" onclick="showSection('customers',this)">👥 ग्राहक</button>
+        <button class="side-btn" onclick="showSection('materials',this)">📦 साहित्य</button>
+        <button class="side-btn" onclick="showSection('works',this)">🛠 काम</button>
+        <button class="side-btn" onclick="showSection('gallery-admin',this)">🖼 गॅलरी</button>
+        <button class="side-btn" onclick="showSection('settings',this)">⚙ सेटिंग्ज</button>
+      </nav>
+    </div>
+
+    <!-- MAIN -->
+    <div style="flex:1;padding:30px;overflow-x:hidden;">
+
+      <!-- DASHBOARD -->
+      <div id="sec-dashboard" class="admin-section">
+        <h2 class="section-title">📊 डॅशबोर्ड</h2>
+        <div class="dashboard-stats" id="dashStats"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:25px;">
+          <div class="card"><div class="card-header"><div class="card-title">🧾 अलीकडील बिले</div></div><div id="recentBills"></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">👥 नवीन ग्राहक</div></div><div id="recentCustomers"></div></div>
+        </div>
+      </div>
+
+      <!-- BILLING -->
+      <div id="sec-billing" class="admin-section" style="display:none;">
+        <h2 class="section-title">🧾 नवीन बिल तयार करा</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:25px;">
+          <div class="card">
+            <div class="card-header"><div class="card-title">👤 ग्राहक माहिती</div></div>
+            <div class="form-group">
+            <label>काम निवडा (एक किंवा अधिक)</label>
+            <div id="billWorkList" class="work-list"></div>
+          </div>
+            <div class="form-group"><label>ग्राहक नाव *</label><input type="text" id="billCustName" placeholder="ग्राहकाचे नाव"></div>
+            <div class="form-group"><label>मोबाईल नंबर</label><input type="tel" id="billCustPhone" placeholder="मोबाईल नंबर"></div>
+            <div class="form-group"><label>पत्ता</label><input type="text" id="billCustAddr" placeholder="पत्ता"></div>
+            <div class="form-group"><label>दिनांक</label><input type="date" id="billDate"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">💰 अतिरिक्त शुल्क</div></div>
+            <div class="form-group"><label>मजुरी ₹</label><input type="number" id="billLabour" value="0" min="0" oninput="calcBill()"></div>
+            <div class="form-group"><label>Discount ₹</label><input type="number" id="billDiscount" value="0" min="0" oninput="calcBill()"></div>
+            <div class="form-group"><label>Advance दिले ₹</label><input type="number" id="billAdvance" value="0" min="0" oninput="calcBill()"></div>
+            <div class="total-box">
+              <div class="total-row"><span>साहित्य एकूण:</span><span id="matTotal">₹0</span></div>
+              <div class="total-row"><span>मजुरी:</span><span id="labourTotal">₹0</span></div>
+              <div class="total-row"><span style="color:#e74c3c;">Discount:</span><span id="discountTotal" style="color:#e74c3c;">-₹0</span></div>
+              <div class="total-row grand"><span>💰 एकूण रक्कम:</span><span id="grandTotal">₹0</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:25px;">
+          <div class="card-header">
+            <div class="card-title">🔩 साहित्य यादी</div>
+            <button class="btn-primary" onclick="addBillRow()" style="font-size:13px;padding:8px 16px;">+ साहित्य जोडा</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>साहित्य</th><th>प्रमाण</th><th>युनिट</th><th>किंमत</th><th>एकूण</th><th></th></tr></thead><tbody id="billItemsBody"></tbody></table></div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;">
+          <button class="btn-primary" onclick="saveBill()">💾 बिल सेव्ह करा</button>
+          <button class="btn-secondary" onclick="previewBill()">👁 पूर्वावलोकन</button>
+          <button class="btn-secondary" onclick="printCurrentBill()">🖨 प्रिंट</button>
+          <button class="btn-whatsapp" style="padding:10px 22px;" onclick="whatsappCurrentBill()">💬 व्हॉट्सअॅप</button>
+        </div>
+      </div>
+
+      <!-- BILLS LIST -->
+      <div id="sec-bills" class="admin-section" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:25px;">
+          <h2 class="section-title" style="margin:0">📋 सर्व बिले</h2>
+          <button class="btn-primary" onclick="showSection('billing',document.querySelectorAll('.side-btn')[1])">+ नवीन बिल</button>
+        </div>
+        <div class="card">
+          <div style="margin-bottom:15px;"><input type="text" id="billSearch" placeholder="🔍 ग्राहक नाव / मोबाईल शोधा..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 15px;color:var(--text);" oninput="loadBills()"></div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>ग्राहक</th><th>मोबाईल</th><th>दिनांक</th><th>एकूण</th><th style="min-width:280px;">Actions</th></tr></thead><tbody id="allBillsBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- CUSTOMERS -->
+      <div id="sec-customers" class="admin-section" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:25px;">
+          <h2 class="section-title" style="margin:0">👥 ग्राहक यादी</h2>
+          <button class="btn-primary" onclick="openCustModal()">+ नवीन ग्राहक</button>
+        </div>
+        <div class="card">
+          <div style="margin-bottom:15px;"><input type="text" id="custSearch" placeholder="🔍 नाव / मोबाईल शोधा..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 15px;color:var(--text);" oninput="loadCustomers()"></div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>नाव</th><th>मोबाईल</th><th>पत्ता</th><th>बिले</th><th>Actions</th></tr></thead><tbody id="customersBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- MATERIALS -->
+      <div id="sec-materials" class="admin-section" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:25px;">
+          <h2 class="section-title" style="margin:0">📦 साहित्य व्यवस्थापन</h2>
+          <button class="btn-primary" onclick="openMatModal()">+ नवीन साहित्य</button>
+        </div>
+        <div class="card"><div class="table-wrap"><table><thead><tr><th>#</th><th>साहित्य नाव</th><th>युनिट</th><th>किंमत</th><th>Actions</th></tr></thead><tbody id="materialsBody"></tbody></table></div></div>
+      </div>
+
+      <!-- WORK TYPES -->
+      <div id="sec-works" class="admin-section" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:25px;">
+          <h2 class="section-title" style="margin:0">🛠 काम प्रकार</h2>
+          <button class="btn-primary" onclick="openWorkModal()">+ नवीन काम</button>
+        </div>
+        <div class="card"><div class="table-wrap"><table><thead><tr><th>#</th><th>कामाचे नाव</th><th>साहित्य</th><th>Actions</th></tr></thead><tbody id="worksBody"></tbody></table></div></div>
+      </div>
+
+      <!-- GALLERY ADMIN -->
+      <div id="sec-gallery-admin" class="admin-section" style="display:none;">
+        <h2 class="section-title">🖼 गॅलरी व्यवस्थापन</h2>
+        <div class="card">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;">
+            <div class="form-group" style="margin:0"><label>Title *</label><input type="text" id="galTitle" placeholder="उदा: Compound Gate"></div>
+            <div class="form-group" style="margin:0"><label>Category</label><select id="galCat"><option value="gate">गेट</option><option value="shed">शेड</option><option value="grill">ग्रिल</option><option value="railing">रेलिंग</option></select></div>
+            <div class="form-group" style="margin:0"><label>Description</label><input type="text" id="galDesc" placeholder="थोडे सांगा"></div>
+          </div>
+          <button class="btn-primary" onclick="addGallery()">+ Gallery मध्ये जोडा</button>
+          <div id="galList" style="margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px;"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div id="sec-settings" class="admin-section" style="display:none;">
+        <h2 class="section-title">⚙ Settings</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:25px;">
+          <div class="card">
+            <div class="card-header"><div class="card-title">🏭 Shop माहिती</div></div>
+            <div class="form-group"><label>Shop नाव</label><input type="text" id="setShopName"></div>
+            <div class="form-group"><label>मालकाचे नाव</label><input type="text" id="setOwnerName"></div>
+            <div class="form-group"><label>मोबाईल</label><input type="tel" id="setMobile"></div>
+            <div class="form-group"><label>WhatsApp</label><input type="tel" id="setWhatsapp"></div>
+            <div class="form-group"><label>पत्ता</label><textarea id="setAddress" rows="3"></textarea></div>
+            <div class="form-group"><label>GST नंबर</label><input type="text" id="setGst"></div>
+            <button class="btn-primary" onclick="saveSettings()">💾 Settings सेव्ह करा</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">🔑 Password बदला</div></div>
+            <div class="form-group"><label>नवीन Password</label><input type="password" id="newPwd"></div>
+            <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPwd"></div>
+            <button class="btn-primary" onclick="changePassword()">🔑 Password बदला</button>
+            <div id="pwdMsg" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="matModal"><div class="modal">
+  <div class="modal-header"><div class="modal-title" id="matModalTitle">साहित्य जोडा</div><button class="modal-close" onclick="closeModal('matModal')">✕</button></div>
+  <div class="form-group"><label>नाव *</label><input type="text" id="matName" placeholder="उदा: MS Pipe"></div>
+  <div class="form-group"><label>युनिट *</label><select id="matUnit"><option value="kg">kg</option><option value="sq ft">sq ft</option><option value="meter">meter</option><option value="piece">piece</option><option value="foot">foot</option></select></div>
+  <div class="form-group"><label>किंमत ₹ *</label><input type="number" id="matPrice" min="0"></div>
+  <input type="hidden" id="matEditId">
+  <div style="display:flex;gap:10px;"><button class="btn-primary" onclick="saveMaterial()">💾 सेव्ह</button><button class="btn-secondary" onclick="closeModal('matModal')">रद्द</button></div>
+</div></div>
+
+<div class="modal-overlay" id="custModal"><div class="modal">
+  <div class="modal-header"><div class="modal-title" id="custModalTitle">नवीन ग्राहक</div><button class="modal-close" onclick="closeModal('custModal')">✕</button></div>
+  <div class="form-group"><label>नाव *</label><input type="text" id="custName" placeholder="पूर्ण नाव"></div>
+  <div class="form-group"><label>मोबाईल</label><input type="tel" id="custPhone" placeholder="मोबाईल नंबर"></div>
+  <div class="form-group"><label>पत्ता</label><input type="text" id="custAddr" placeholder="गाव / शहर"></div>
+  <div class="form-group"><label>नोंद</label><input type="text" id="custNote" placeholder="उदा: नियमित ग्राहक"></div>
+  <input type="hidden" id="custEditId">
+  <div style="display:flex;gap:10px;"><button class="btn-primary" onclick="saveCustomer()">💾 सेव्ह</button><button class="btn-secondary" onclick="closeModal('custModal')">रद्द</button></div>
+</div></div>
+
+<div class="modal-overlay" id="workModal"><div class="modal" style="max-width:820px;width:95%;">
+  <div class="modal-header"><div class="modal-title" id="workModalTitle">नवीन काम जोडा</div><button class="modal-close" onclick="closeModal('workModal')">✕</button></div>
+  <div class="form-group"><label>कामाचे नाव *</label><input type="text" id="workName" placeholder="उदा. कंपाऊंड गेट"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <div style="font-family:'Rajdhani';font-weight:700;color:var(--white);">📦 साहित्य</div>
+    <button class="btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="addWorkComponentRow()">+ जोडा</button>
+  </div>
+  <div class="table-wrap" style="margin-bottom:15px;"><table><thead><tr><th>साहित्य</th><th>प्रमाण</th><th>युनिट</th><th>किंमत</th><th></th></tr></thead><tbody id="workComponentsBody"></tbody></table></div>
+  <div style="display:flex;gap:10px;"><button class="btn-primary" onclick="saveWork()">💾 सेव्ह करा</button><button class="btn-secondary" onclick="closeModal('workModal')">रद्द</button></div>
+</div></div>
+
+<div class="modal-overlay" id="editBillModal"><div class="modal" style="max-width:780px;width:95%;">
+  <div class="modal-header"><div class="modal-title">✏ बिल Edit करा</div><button class="modal-close" onclick="closeModal('editBillModal')">✕</button></div>
+  <input type="hidden" id="ebId">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px;">
+    <div class="form-group" style="margin:0"><label>ग्राहक नाव *</label><input type="text" id="ebName"></div>
+    <div class="form-group" style="margin:0"><label>मोबाईल</label><input type="tel" id="ebPhone"></div>
+    <div class="form-group" style="margin:0"><label>पत्ता</label><input type="text" id="ebAddr"></div>
+    <div class="form-group" style="margin:0"><label>दिनांक</label><input type="date" id="ebDate"></div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <div style="font-family:'Rajdhani';font-weight:700;color:var(--white);">📦 साहित्य</div>
+    <button class="btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="addEditRow()">+ जोडा</button>
+  </div>
+  <div class="table-wrap" style="margin-bottom:15px;"><table><thead><tr><th>साहित्य</th><th>प्रमाण</th><th>युनिट</th><th>दर</th><th>एकूण</th><th></th></tr></thead><tbody id="editItemsBody"></tbody></table></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:15px;">
+    <div class="form-group" style="margin:0"><label>मजुरी ₹</label><input type="number" id="ebLabour" value="0" oninput="calcEditBill()"></div>
+    <div class="form-group" style="margin:0"><label>Discount ₹</label><input type="number" id="ebDiscount" value="0" oninput="calcEditBill()"></div>
+    <div class="form-group" style="margin:0"><label>Advance ₹</label><input type="number" id="ebAdvance" value="0" oninput="calcEditBill()"></div>
+  </div>
+  <div class="total-box" style="margin-bottom:15px;">
+    <div class="total-row grand"><span>💰 एकूण रक्कम:</span><span id="ebTotal">₹0</span></div>
+  </div>
+  <div style="display:flex;gap:10px;"><button class="btn-primary" onclick="saveEditedBill()">💾 बदल सेव्ह करा</button><button class="btn-secondary" onclick="closeModal('editBillModal')">रद्द करा</button></div>
+</div></div>
+
+<div class="modal-overlay" id="viewBillModal"><div class="modal" style="max-width:750px;width:95%;">
+  <div class="modal-header">
+    <div class="modal-title">🧾 बिल</div>
+    <button class="modal-close" onclick="closeModal('viewBillModal')">✕</button>
+  </div>
+  <div id="viewBillActions" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
+  <iframe id="billIframe" style="width:100%;height:580px;border:none;border-radius:10px;"></iframe>
+</div></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

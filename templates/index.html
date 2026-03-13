@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ settings.shop_name }} - मुख्य पेज{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">⚙ Professional Fabrication</div>
+    <h1>{{ settings.shop_name }}</h1>
+    <p class="hero-sub">मध्ये आपले हार्दिक <span class="highlight">स्वागत</span> आहे</p>
+    <p class="hero-desc">आमच्या येथे सर्व प्रकारची फॅब्रिकेशन व वेल्डिंगची कामे<br><strong>उत्कृष्ट गुणवत्ता</strong> आणि <strong>योग्य दरात</strong> केली जातात.</p>
+    <div class="hero-btns">
+      <a href="{{ url_for('contact') }}" class="btn-primary">📞 संपर्क करा</a>
+      <a href="{{ url_for('gallery') }}" class="btn-outline">🖼 आमचे काम पाहा</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">5+</div><div class="stat-label">वर्षांचा अनुभव</div></div>
+    <div class="stat"><div class="stat-num">500+</div><div class="stat-label">खूश ग्राहक</div></div>
+    <div class="stat"><div class="stat-num">1000+</div><div class="stat-label">प्रोजेक्ट पूर्ण</div></div>
+  </div>
+</section>
+
+<section class="section services">
+  <div class="container">
+    <div class="section-header"><h2>🔧 आमच्या सेवा</h2><p>आम्ही खालील सर्व प्रकारची कामे करतो</p></div>
+    <div class="services-grid">
+      {% for svc in [('🏗','शेड तयार करणे','मजबूत आणि टिकाऊ शेड construction'),('🚪','कंपाऊंड गेट','आकर्षक design चे compound gates'),('🔩','ग्रिल तयार करणे','सर्व प्रकारच्या grills व जाळ्या'),('🚪','दरवाजे तयार करणे','लोखंडी आणि stainless steel दरवाजे'),('🪟','खिडक्या तयार करणे','विविध design च्या metal windows'),('🛗','रेलिंग तयार करणे','सुंदर आणि मजबूत staircase railings'),('⚡','सर्व वेल्डिंग काम','MIG, TIG, Arc welding सर्व प्रकार'),('🏭','Industrial Fabrication','मोठ्या प्रमाणातील fabrication काम')] %}
+      <div class="service-card">
+        <div class="service-icon">{{ svc[0] }}</div>
+        <h3>{{ svc[1] }}</h3>
+        <p>{{ svc[2] }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section features">
+  <div class="container">
+    <div class="section-header light"><h2>⭐ आमची वैशिष्ट्ये</h2><p>आम्ही इतरांपेक्षा वेगळे का आहोत</p></div>
+    <div class="features-grid">
+      <div class="feature-item"><div class="feature-icon">✅</div><h3>उत्कृष्ट गुणवत्ता</h3><p>आम्ही नेहमी best quality material वापरतो.</p></div>
+      <div class="feature-item"><div class="feature-icon">💰</div><h3>योग्य दर</h3><p>Market मध्ये सर्वात reasonable rates.</p></div>
+      <div class="feature-item"><div class="feature-icon">⏰</div><h3>वेळेत काम पूर्ण</h3><p>दिलेल्या वेळेत काम पूर्ण करण्याची guarantee.</p></div>
+      <div class="feature-item"><div class="feature-icon">💪</div><h3>मजबूत आणि टिकाऊ</h3><p>आमचे काम वर्षानुवर्षे टिकते.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-grid">
+      <div class="cta-logo"><img src="{{ url_for('static', filename='logo/logo.png') }}" alt="{{ settings.shop_name }} logo"></div>
+      <div>
+        <h2>आजच आमच्याशी संपर्क करा!</h2>
+        <p>आपल्या गरजेनुसार estimate साठी आत्ताच call करा</p>
+        <div class="cta-btns">
+          <a href="tel:{{ settings.mobile }}" class="btn-primary">📞 {{ settings.mobile }} वर Call करा</a>
+          <a href="https://wa.me/91{{ settings.whatsapp }}" class="btn-whatsapp" target="_blank">💬 WhatsApp करा</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}संपर्क - {{ settings.shop_name }}{% endblock %}
+{% block content %}
+<div class="page-header"><h1>📞 संपर्क करा</h1><p>आमच्याशी संपर्क साधण्यासाठी खालील माहिती वापरा</p></div>
+<section class="section" style="background:var(--secondary);">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+      <div>
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--white);margin-bottom:25px;">संपर्क माहिती</h2>
+        <div style="display:grid;gap:15px;">
+          {% for icon,label,val,href in [('📱','मोबाईल नंबर',settings.mobile,'tel:'+settings.mobile),('💬','WhatsApp',settings.whatsapp,'https://wa.me/91'+settings.whatsapp),('📍','पत्ता',settings.address,None),('👨‍🔧','मालक',settings.owner_name,None)] %}
+          <div style="display:flex;align-items:center;gap:15px;background:var(--card-bg);border:1px solid var(--card-border);padding:18px 20px;border-radius:12px;transition:all 0.3s;">
+            <div style="font-size:30px;">{{ icon }}</div>
+            <div>
+              <div style="color:var(--text-muted);font-size:13px;margin-bottom:4px;">{{ label }}</div>
+              {% if href %}<a href="{{ href }}" style="color:var(--primary-light);font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;">{{ val }}</a>
+              {% else %}<div style="color:var(--text);font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;">{{ val }}</div>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div style="margin-top:25px;display:flex;gap:15px;flex-wrap:wrap;">
+          <a href="tel:{{ settings.mobile }}" class="btn-primary">📞 Call करा</a>
+          <a href="https://wa.me/91{{ settings.whatsapp }}" class="btn-whatsapp" target="_blank">💬 WhatsApp</a>
+        </div>
+        <div style="margin-top:30px;background:rgba(230,92,0,0.1);border:1px solid rgba(230,92,0,0.3);border-radius:12px;padding:20px;text-align:center;">
+          <div style="font-size:50px;margin-bottom:10px;">🗺</div>
+          <p style="color:var(--text-muted);margin-bottom:15px;">Google Maps वर location पाहण्यासाठी:</p>
+          <a href="https://maps.app.goo.gl/FjAyn35wNZ3Bo1n8A" target="_blank" class="btn-primary">📍 Google Maps वर उघडा</a>
+        </div>
+      </div>
+      <div>
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--white);margin-bottom:25px;">📋 Inquiry पाठवा</h2>
+        <div class="card">
+          <div id="formMsg"></div>
+          <div class="form-group"><label>आपले नाव *</label><input type="text" id="inqName" placeholder="आपले पूर्ण नाव"></div>
+          <div class="form-group"><label>मोबाईल नंबर *</label><input type="tel" id="inqPhone" placeholder="10 अंकी मोबाईल नंबर"></div>
+          <div class="form-group"><label>कामाचा प्रकार</label>
+            <select id="inqType">
+              <option value="">कामाचा प्रकार निवडा</option>
+              {% for t in ['शेड तयार करणे','गेट तयार करणे','ग्रिल तयार करणे','दरवाजे तयार करणे','खिडक्या तयार करणे','रेलिंग तयार करणे','वेल्डिंग काम','इतर'] %}
+              <option>{{ t }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group"><label>संदेश</label><textarea id="inqMsg" rows="4" placeholder="आपल्या कामाबद्दल थोडक्यात सांगा..."></textarea></div>
+          <button class="btn-primary" onclick="sendInquiry()">📤 WhatsApp वर पाठवा</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+function sendInquiry(){
+  const name=document.getElementById('inqName').value.trim();
+  const phone=document.getElementById('inqPhone').value.trim();
+  const type=document.getElementById('inqType').value;
+  const msg=document.getElementById('inqMsg').value.trim();
+  if(!name||!phone){document.getElementById('formMsg').innerHTML='<div class="alert alert-error">❌ कृपया नाव आणि मोबाईल नंबर भरा</div>';return;}
+  const waMsg=`🏭 *{{ settings.shop_name }} - नवीन Inquiry*\n\n👤 नाव: ${name}\n📱 मोबाईल: ${phone}\n🔧 काम: ${type||'सांगितले नाही'}\n💬 संदेश: ${msg||'काही नाही'}\n\nधन्यवाद`;
+  window.open(`https://wa.me/91{{ settings.whatsapp }}?text=${encodeURIComponent(waMsg)}`,'_blank');
+  document.getElementById('formMsg').innerHTML='<div class="alert alert-success">✅ WhatsApp उघडत आहे!</div>';
+}
+</script>
+{% endblock %}

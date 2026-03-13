@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Akshay Fabrication Works{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Marathi:ital@0;1&family=Rajdhani:wght@400;600;700&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="{{ settings.shop_name }} logo" class="logo-img" />
+    <div>
+      <div class="brand-name">{{ settings.shop_name }}</div>
+      <div class="brand-sub">Professional Welding & Fabrication</div>
+    </div>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="{{ url_for('index') }}" {% if request.endpoint=='index' %}class="active"{% endif %} data-i18n="nav.home">🏠 मुख्य पेज</a></li>
+    <li><a href="{{ url_for('about') }}" {% if request.endpoint=='about' %}class="active"{% endif %} data-i18n="nav.about">👤 आमच्याबद्दल</a></li>
+    <li><a href="{{ url_for('gallery') }}" {% if request.endpoint=='gallery' %}class="active"{% endif %} data-i18n="nav.gallery">🖼 गॅलरी</a></li>
+    <li><a href="{{ url_for('contact') }}" {% if request.endpoint=='contact' %}class="active"{% endif %} data-i18n="nav.contact">📞 संपर्क</a></li>
+    <li><a href="{{ url_for('admin') }}" class="btn-admin" data-i18n="nav.admin">🔐 Admin</a></li>
+    <li><button id="langToggle" class="btn-lang" onclick="toggleLanguage()" data-i18n="nav.toggle">EN</button></li>
+  </ul>
+  <div class="hamburger" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h3>⚙ {{ settings.shop_name }}</h3>
+        <p>मालक: {{ settings.owner_name }}</p>
+        <p>5+ वर्षांचा अनुभव</p>
+      </div>
+      <div>
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="{{ url_for('index') }}">मुख्य पेज</a></li>
+          <li><a href="{{ url_for('about') }}">आमच्याबद्दल</a></li>
+          <li><a href="{{ url_for('gallery') }}">गॅलरी</a></li>
+          <li><a href="{{ url_for('contact') }}">संपर्क</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>संपर्क</h3>
+        <p>📱 {{ settings.mobile }}</p>
+        <p>📍 {{ settings.address }}</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 {{ settings.shop_name }}. All Rights Reserved.</p>
+    </div>
+  </div>
+</footer>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

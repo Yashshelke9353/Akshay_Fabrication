@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}आमच्याबद्दल - {{ settings.shop_name }}{% endblock %}
+{% block content %}
+<div class="page-header"><h1>👤 आमच्याबद्दल</h1><p>Akshay Fabrication Works ची संपूर्ण माहिती</p></div>
+<section class="section" style="background:var(--secondary);">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;">
+      <div style="background:rgba(230,92,0,0.1);border:1px solid rgba(230,92,0,0.3);border-radius:20px;padding:40px;text-align:center;">
+        <img src="{{ url_for('static', filename='logo/logo.png') }}" alt="Logo" class="about-logo">
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:28px;color:var(--accent);font-weight:700;">{{ settings.shop_name }}</h2>
+        <p style="color:var(--text-muted);margin-top:10px;">Since 2019</p>
+      </div>
+      <div>
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--white);margin-bottom:20px;">आमची <span style="background:linear-gradient(135deg,#e65c00,#f9d423);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ओळख</span></h2>
+        <p style="color:var(--text-muted);font-size:17px;line-height:1.9;margin-bottom:20px;">{{ settings.shop_name }} हे एक विश्वासार्ह आणि अनुभवी फॅब्रिकेशन वर्कशॉप आहे. आम्हाला फॅब्रिकेशन क्षेत्रात <strong style="color:var(--accent);">5+ वर्षांचा अनुभव</strong> आहे.</p>
+        <p style="color:var(--text-muted);font-size:17px;line-height:1.9;margin-bottom:20px;">आमचे मुख्य उद्दिष्ट ग्राहकांना <strong style="color:var(--primary-light);">मजबूत, टिकाऊ आणि आकर्षक</strong> काम देणे हे आहे.</p>
+        <div style="margin-top:30px;"><a href="{{ url_for('contact') }}" class="btn-primary">📞 आजच संपर्क करा</a></div>
+      </div>
+    </div>
+    <div style="margin-top:50px;text-align:center;">
+      <div class="card" style="max-width:500px;margin:0 auto;padding:40px;">
+        <div style="width:100px;height:100px;background:linear-gradient(135deg,#e65c00,#f9d423);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:50px;margin:0 auto 20px;">👨‍🔧</div>
+        <h2 style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:var(--white);">{{ settings.owner_name }}</h2>
+        <p style="color:var(--accent);margin:8px 0 20px;font-family:'Rajdhani',sans-serif;">मालक | Fabrication Expert</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;">
+          <div style="background:rgba(230,92,0,0.1);padding:15px;border-radius:10px;"><div style="color:var(--text-muted);font-size:13px;">📱 मोबाईल</div><div style="color:var(--white);font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;">{{ settings.mobile }}</div></div>
+          <div style="background:rgba(230,92,0,0.1);padding:15px;border-radius:10px;"><div style="color:var(--text-muted);font-size:13px;">⏳ अनुभव</div><div style="color:var(--white);font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;">5+ वर्षे</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
