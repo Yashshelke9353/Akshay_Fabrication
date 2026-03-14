@@ -53,10 +53,19 @@ class Material(db.Model):
     name       = db.Column(db.String(200), nullable=False)
     unit       = db.Column(db.String(50),  nullable=False)
     price      = db.Column(db.Float,       nullable=False, default=0)
+    length     = db.Column(db.Float,       nullable=False, default=0)
+    girth      = db.Column(db.Float,       nullable=False, default=0)
     created_at = db.Column(db.DateTime,    default=datetime.utcnow)
 
     def to_dict(self):
-        return {'id': self.id, 'name': self.name, 'unit': self.unit, 'price': self.price}
+        return {
+            'id': self.id,
+            'name': self.name,
+            'unit': self.unit,
+            'price': self.price,
+            'length': self.length,
+            'girth': self.girth,
+        }
 
 
 class WorkType(db.Model):
@@ -168,6 +177,8 @@ class BillItem(db.Model):
     qty         = db.Column(db.Float, default=0)
     unit        = db.Column(db.String(50), default='')
     price       = db.Column(db.Float, default=0)
+    length      = db.Column(db.Float, default=0)
+    girth       = db.Column(db.Float, default=0)
 
     material = db.relationship('Material')
 
@@ -179,6 +190,8 @@ class BillItem(db.Model):
             'qty': self.qty,
             'unit': self.unit,
             'price': self.price,
+            'length': self.length,
+            'girth': self.girth,
         }
 
 
@@ -358,7 +371,13 @@ def api_get_materials():
 @login_required
 def api_add_material():
     data = request.json
-    m = Material(name=data['name'], unit=data['unit'], price=float(data['price']))
+    m = Material(
+        name=data['name'],
+        unit=data['unit'],
+        price=float(data.get('price', 0)),
+        length=float(data.get('length', 0)),
+        girth=float(data.get('girth', 0)),
+    )
     db.session.add(m)
     db.session.commit()
     return jsonify(m.to_dict())
@@ -368,9 +387,11 @@ def api_add_material():
 def api_update_material(mid):
     m = Material.query.get_or_404(mid)
     data = request.json
-    m.name  = data.get('name',  m.name)
-    m.unit  = data.get('unit',  m.unit)
-    m.price = float(data.get('price', m.price))
+    m.name   = data.get('name',  m.name)
+    m.unit   = data.get('unit',  m.unit)
+    m.price  = float(data.get('price', m.price))
+    m.length = float(data.get('length', m.length))
+    m.girth  = float(data.get('girth', m.girth))
     db.session.commit()
     return jsonify(m.to_dict())
 
@@ -578,6 +599,8 @@ def api_create_bill():
             qty         = float(i.get('qty', 0)) if i.get('qty') is not None else 0,
             unit        = i.get('unit') or '',
             price       = float(i.get('price', 0)) if i.get('price') is not None else 0,
+            length      = float(i.get('length', 0)) if i.get('length') is not None else 0,
+            girth       = float(i.get('girth', 0)) if i.get('girth') is not None else 0,
         )
         db.session.add(bi)
 
@@ -624,6 +647,8 @@ def api_update_bill(bid):
             qty         = float(i.get('qty', 0)) if i.get('qty') is not None else 0,
             unit        = i.get('unit') or '',
             price       = float(i.get('price', 0)) if i.get('price') is not None else 0,
+            length      = float(i.get('length', 0)) if i.get('length') is not None else 0,
+            girth       = float(i.get('girth', 0)) if i.get('girth') is not None else 0,
         )
         db.session.add(bi)
 
@@ -751,6 +776,10 @@ with app.app_context():
     db.create_all()
     # For existing installations: ensure new schema columns exist
     ensure_column('bills', 'work_id', 'INTEGER')
+    ensure_column('materials', 'length', 'FLOAT DEFAULT 0')
+    ensure_column('materials', 'girth', 'FLOAT DEFAULT 0')
+    ensure_column('bill_items', 'length', 'FLOAT DEFAULT 0')
+    ensure_column('bill_items', 'girth', 'FLOAT DEFAULT 0')
     seed_db()
 
 
