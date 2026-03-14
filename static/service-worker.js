@@ -6,7 +6,7 @@ const urlsToCache = [
   '/contact',
   '/static/css/style.css',
   '/static/js/main.js',
-  '/static/logo/logo.png'
+  '/static/icons/icon-192.jpeg'
 ];
 
 // Install event - cache resources
