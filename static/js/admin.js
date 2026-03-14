@@ -178,19 +178,23 @@ async function loadMaterials() {
         <td style="color:var(--text-muted);">${i+1}</td>
         <td style="font-weight:600;color:var(--white);">${m.name}</td>
         <td>${m.unit}</td>
+        <td>${m.length || ''}</td>
+        <td>${m.girth || ''}</td>
         <td style="color:var(--accent);font-family:'Rajdhani';font-weight:700;">${formatCurrency(m.price)}</td>
         <td><div style="display:flex;gap:6px;">
           <button class="act-btn act-edit" onclick="editMaterial(${m.id})">✏ Edit</button>
           <button class="act-btn act-del" onclick="deleteMaterial(${m.id})">🗑</button>
         </div></td>
       </tr>`).join('')
-    : '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:30px;">साहित्य नाही</td></tr>';
+    : '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:30px;">साहित्य नाही</td></tr>';
 }
 
 function openMatModal(mat) {
   document.getElementById('matEditId').value = mat ? mat.id : '';
   document.getElementById('matName').value   = mat ? mat.name : '';
   document.getElementById('matUnit').value   = mat ? mat.unit : 'kg';
+  document.getElementById('matLength').value = mat ? mat.length : '';
+  document.getElementById('matGirth').value  = mat ? mat.girth  : '';
   document.getElementById('matPrice').value  = mat ? mat.price : '';
   document.getElementById('matModalTitle').textContent = mat ? 'साहित्य Edit करा' : 'नवीन साहित्य';
   openModal('matModal');
@@ -205,13 +209,16 @@ async function saveMaterial() {
   const id    = document.getElementById('matEditId').value;
   const name  = document.getElementById('matName').value.trim();
   const unit  = document.getElementById('matUnit').value;
-  const price = parseFloat(document.getElementById('matPrice').value) || 0;
+  const price  = parseFloat(document.getElementById('matPrice').value) || 0;
+  const length = parseFloat(document.getElementById('matLength').value) || 0;
+  const girth  = parseFloat(document.getElementById('matGirth').value) || 0;
   if (!name) { showToast('नाव भरा!', 'error'); return; }
+  const payload = {name, unit, price, length, girth};
   if (id) {
-    await apiFetch('/api/materials/' + id, 'PUT', {name, unit, price});
+    await apiFetch('/api/materials/' + id, 'PUT', payload);
     showToast('साहित्य अपडेट झाले ✅');
   } else {
-    await apiFetch('/api/materials', 'POST', {name, unit, price});
+    await apiFetch('/api/materials', 'POST', payload);
     showToast('साहित्य जोडले ✅');
   }
   closeModal('matModal');
@@ -490,14 +497,14 @@ async function deleteCustomer(id) {
 let billItems = [];
 
 function addBillRow() {
-  billItems.push({id: Date.now(), material_id: null, matName:'', qty:1, unit:'', price:0});
+  billItems.push({id: Date.now(), material_id: null, matName:'', qty:1, unit:'', length:0, girth:0, price:0});
   renderBillRows();
 }
 
 function renderBillRows() {
   const mats = _materials;
   document.getElementById('billItemsBody').innerHTML = billItems.map(item => {
-    const opts = mats.map(m => `<option value="${m.id}" data-price="${m.price}" data-unit="${m.unit}" style="background:#1a1a2e;" ${item.material_id==m.id ? 'selected' : ''}>${m.name} (${m.unit}) — ₹${m.price}</option>`).join('');
+    const opts = mats.map(m => `<option value="${m.id}" data-price="${m.price}" data-unit="${m.unit}" data-length="${m.length||0}" data-girth="${m.girth||0}" style="background:#1a1a2e;" ${item.material_id==m.id ? 'selected' : ''}>${m.name} (${m.unit}) — ₹${m.price}</option>`).join('');
     return `
       <tr>
         <td style="min-width:200px;">
@@ -508,6 +515,8 @@ function renderBillRows() {
         </td>
         <td><input type="number" value="${item.qty}" min="0.01" step="0.01" oninput="updateBillItem('${item.id}','qty',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px;color:var(--white);width:80px;font-size:15px;"></td>
         <td><input type="text" value="${esc(item.unit)}" placeholder="kg" oninput="updateBillItem('${item.id}','unit',this.value)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px;color:var(--white);width:70px;font-size:15px;"></td>
+        <td><input type="number" value="${item.length||''}" min="0" step="0.01" placeholder="लांबी" oninput="updateBillItem('${item.id}','length',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px;color:var(--white);width:80px;font-size:15px;"></td>
+        <td><input type="number" value="${item.girth||''}" min="0" step="0.01" placeholder="वृंदी" oninput="updateBillItem('${item.id}','girth',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px;color:var(--white);width:80px;font-size:15px;"></td>
         <td><input type="number" value="${item.price}" min="0" oninput="updateBillItem('${item.id}','price',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px;color:var(--white);width:100px;font-size:15px;"></td>
         <td style="color:var(--accent);font-family:'Rajdhani';font-weight:700;">${formatCurrency(item.qty*item.price)}</td>
         <td><button onclick="removeBillItem('${item.id}')" style="background:rgba(231,76,60,0.2);border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:6px 10px;cursor:pointer;">✕</button></td>
@@ -523,6 +532,8 @@ function onBillMatSelect(sel, itemId) {
   updateBillItem(itemId, 'matName', namePart);
   updateBillItem(itemId, 'price', parseFloat(opt.dataset.price)||0);
   updateBillItem(itemId, 'unit', opt.dataset.unit||'');
+  updateBillItem(itemId, 'length', parseFloat(opt.dataset.length)||0);
+  updateBillItem(itemId, 'girth', parseFloat(opt.dataset.girth)||0);
   renderBillRows(); calcBill();
 }
 
@@ -696,13 +707,13 @@ async function openEditBill(id) {
 }
 
 function addEditRow() {
-  editItems.push({_id: Date.now(), matName:'', qty:1, unit:'', price:0});
+  editItems.push({_id: Date.now(), matName:'', qty:1, unit:'', length:0, girth:0, price:0});
   renderEditRows();
 }
 
 function renderEditRows() {
   const mats = _materials;
-  const opts = mats.map(m => `<option value="${m.id}" data-price="${m.price}" data-unit="${m.unit}" style="background:#1a1a2e;">${m.name} (${m.unit}) — ₹${m.price}</option>`).join('');
+  const opts = mats.map(m => `<option value="${m.id}" data-price="${m.price}" data-unit="${m.unit}" data-length="${m.length||0}" data-girth="${m.girth||0}" style="background:#1a1a2e;">${m.name} (${m.unit}) — ₹${m.price}</option>`).join('');
   document.getElementById('editItemsBody').innerHTML = editItems.map(item => `
     <tr>
       <td style="min-width:180px;">
@@ -713,6 +724,8 @@ function renderEditRows() {
       </td>
       <td><input type="number" value="${item.qty||1}" min="0.01" step="0.01" oninput="updateEditItem('${item._id}','qty',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px;color:var(--white);width:75px;"></td>
       <td><input type="text" value="${esc(item.unit||'')}" placeholder="kg" oninput="updateEditItem('${item._id}','unit',this.value)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px;color:var(--white);width:65px;"></td>
+      <td><input type="number" value="${item.length||''}" min="0" step="0.01" placeholder="लांबी" oninput="updateEditItem('${item._id}','length',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px;color:var(--white);width:80px;"></td>
+      <td><input type="number" value="${item.girth||''}" min="0" step="0.01" placeholder="वृंदी" oninput="updateEditItem('${item._id}','girth',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px;color:var(--white);width:80px;"></td>
       <td><input type="number" value="${item.price||0}" min="0" oninput="updateEditItem('${item._id}','price',parseFloat(this.value)||0)" style="background:#0f0f1a;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px;color:var(--white);width:90px;"></td>
       <td style="color:var(--accent);font-family:'Rajdhani';font-weight:700;">${formatCurrency((item.qty||1)*(item.price||0))}</td>
       <td><button onclick="removeEditItem('${item._id}')" style="background:rgba(231,76,60,0.2);border:1px solid #e74c3c;color:#e74c3c;border-radius:6px;padding:5px 9px;cursor:pointer;">✕</button></td>
@@ -725,6 +738,8 @@ function onEditMatSelect(sel, _id) {
   updateEditItem(_id, 'matName', opt.text.split(' (')[0]);
   updateEditItem(_id, 'price', parseFloat(opt.dataset.price)||0);
   updateEditItem(_id, 'unit', opt.dataset.unit||'');
+  updateEditItem(_id, 'length', parseFloat(opt.dataset.length)||0);
+  updateEditItem(_id, 'girth', parseFloat(opt.dataset.girth)||0);
   renderEditRows(); calcEditBill();
 }
 
@@ -820,6 +835,8 @@ function getBillHTML(bill) {
       <td style="padding:10px 12px;color:#1a1a1a;font-size:15px;font-weight:600;border-bottom:1px solid #f0e8e0;">${item.matName}</td>
       <td style="padding:10px 12px;text-align:center;color:#333;border-bottom:1px solid #f0e8e0;">${item.qty}</td>
       <td style="padding:10px 12px;text-align:center;color:#555;border-bottom:1px solid #f0e8e0;">${item.unit||'—'}</td>
+      <td style="padding:10px 12px;text-align:center;color:#555;border-bottom:1px solid #f0e8e0;">${item.length ? Number(item.length).toFixed(2) : '—'}</td>
+      <td style="padding:10px 12px;text-align:center;color:#555;border-bottom:1px solid #f0e8e0;">${item.girth ? Number(item.girth).toFixed(2) : '—'}</td>
       <td style="padding:10px 12px;text-align:right;color:#555;border-bottom:1px solid #f0e8e0;">₹${Number(item.price).toLocaleString('en-IN')}</td>
       <td style="padding:10px 12px;text-align:right;color:#c44e00;font-weight:700;border-bottom:1px solid #f0e8e0;">₹${Number(item.qty*item.price).toLocaleString('en-IN')}</td>
     </tr>`).join('');
@@ -939,10 +956,12 @@ thead th:nth-child(3),thead th:nth-child(4),thead th:nth-child(5){text-align:cen
         <th style="text-align:left;">साहित्याचे नाव</th>
         <th style="text-align:center;">प्रमाण</th>
         <th style="text-align:center;">युनिट</th>
+        <th style="text-align:center;">लांबी</th>
+        <th style="text-align:center;">वृंदी</th>
         <th style="text-align:right;">दर (₹)</th>
         <th style="text-align:right;">एकूण (₹)</th>
       </tr></thead>
-      <tbody>${rows||'<tr><td colspan="6" style="padding:16px;text-align:center;color:#aaa;">कोणतेही साहित्य नाही</td></tr>'}</tbody>
+      <tbody>${rows||'<tr><td colspan="8" style="padding:16px;text-align:center;color:#aaa;">कोणतेही साहित्य नाही</td></tr>'}</tbody>
     </table>
   </div>
   <div class="sum-wrap">
